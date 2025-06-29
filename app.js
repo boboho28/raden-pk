@@ -201,17 +201,19 @@ function showNotification(message, type = 'success') {
   }
 }
 
-// Fungsi pencarian memo
+// Fungsi pencarian memo (hanya pada judul asli, mengabaikan perbedaan font)
 function searchMemos() {
-  const query = (document.getElementById('searchInput')?.value || '').toLowerCase();
+  const query = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
   if (!query) {
     renderMemos(allMemos);
     return;
   }
+
+  // Filter memo berdasarkan kesamaan pada originalTitle (teks asli)
   const filteredMemos = allMemos.filter(memo => 
-    (memo.title || '').toLowerCase().includes(query) || 
-    (memo.description || '').toLowerCase().includes(query)
+    memo.originalTitle.toLowerCase().includes(query)
   );
+
   renderMemos(filteredMemos);
 }
 
