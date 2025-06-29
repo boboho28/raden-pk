@@ -1,11 +1,9 @@
-// Variabel global
 let currentCategory = 'Memo';
 let currentMemoId = null;
 let allMemos = [];
 let activeBottomMenu = 'home';
 let currentUser = null;
 
-// Peta karakter Unicode untuk gaya teks tebal kapital dengan dekorasi
 const unicodeMap = {
   'A': '𝐀', 'B': '𝐁', 'C': '𝐂', 'D': '𝐃', 'E': '𝐄', 'F': '𝐅', 'G': '𝐆', 'H': '𝐇', 'I': '𝐈', 'J': '𝐉', 'K': '𝐊', 'L': '𝐋', 'M': '𝐌', 'N': '𝐍', 'O': '𝐎', 'P': '𝐏', 'Q': '𝐐', 'R': '𝐑', 'S': '𝐒', 'T': '𝐓', 'U': '𝐔', 'V': '𝐕', 'W': '𝐖', 'X': '𝐗', 'Y': '𝐘', 'Z': '𝐙',
   'a': '𝐀', 'b': '𝐁', 'c': '𝐂', 'd': '𝐃', 'e': '𝐄', 'f': '𝐅', 'g': '𝐆', 'h': '𝐇', 'i': '𝐈', 'j': '𝐉', 'k': '𝐊', 'l': '𝐋', 'm': '𝐌', 'n': '𝐍', 'o': '𝐎', 'p': '𝐏', 'q': '𝐐', 'r': '𝐑', 's': '𝐒', 't': '𝐓', 'u': '𝐔', 'v': '𝐕', 'w': '𝐖', 'x': '𝐗', 'y': '𝐘', 'z': '𝐙',
@@ -15,14 +13,12 @@ const unicodeMap = {
   'DECORATION_END': '▁▂▃▅▆▓▒░✩'
 };
 
-// Fungsi untuk mengonversi teks ke gaya Unicode dengan dekorasi dan huruf kapital
 function toFancyText(text) {
   if (!text || typeof text !== 'string') return text || '';
   const decoratedText = `${unicodeMap['DECORATION_START']}${text.toUpperCase().split('').map(char => unicodeMap[char] || char).join('')}${unicodeMap['DECORATION_END']}`;
   return decoratedText;
 }
 
-// Inisialisasi data dengan penanganan error
 function initData() {
   try {
     const userData = localStorage.getItem('currentUser');
@@ -53,13 +49,12 @@ function initData() {
   } catch (e) {
     console.error('Error initializing data:', e);
     showNotification('Terjadi kesalahan saat memuat data!', 'error');
-    currentUser = { email: 'default@example.com', username: 'Default' }; // Fallback
+    currentUser = { email: 'default@example.com', username: 'Default' };
     document.getElementById('currentUserEmail').textContent = 'Default';
     document.getElementById('profileModalUsername').textContent = 'Default';
   }
 }
 
-// Muat data awal saat halaman dimuat
 document.addEventListener('DOMContentLoaded', function() {
   initData();
   loadInitialData();
@@ -67,7 +62,6 @@ document.addEventListener('DOMContentLoaded', function() {
   setupEventListeners();
 });
 
-// Setup event listeners
 function setupEventListeners() {
   const searchInput = document.getElementById('searchInput');
   if (searchInput) searchInput.addEventListener('input', searchMemos);
@@ -75,7 +69,6 @@ function setupEventListeners() {
   if (profileInput) profileInput.addEventListener('change', previewProfilePicture);
 }
 
-// Fungsi inisialisasi tema
 function initTheme() {
   const themeToggle = document.getElementById('themeToggle');
   if (!themeToggle) return;
@@ -91,13 +84,11 @@ function initTheme() {
   });
 }
 
-// Fungsi inisialisasi
 function loadInitialData() {
   loadMenuItems();
   loadMemos(currentCategory);
 }
 
-// Muat daftar menu dari localStorage
 function loadMenuItems() {
   try {
     const menus = JSON.parse(localStorage.getItem(`menuItems_${currentUser.email}`) || '[]');
@@ -118,7 +109,6 @@ function loadMenuItems() {
   }
 }
 
-// Pilih menu/kategori
 function selectMenu(menu) {
   document.querySelectorAll('.menu-item').forEach(item => {
     item.classList.toggle('active', item.textContent.includes(menu));
@@ -128,7 +118,6 @@ function selectMenu(menu) {
   loadMemos(menu);
 }
 
-// Muat memo berdasarkan kategori
 function loadMemos(category) {
   try {
     const memos = JSON.parse(localStorage.getItem(`memos_${currentUser.email}`) || '[]');
@@ -140,7 +129,6 @@ function loadMemos(category) {
   }
 }
 
-// Render daftar memo ke HTML
 function renderMemos(memos) {
   const memoContainer = document.getElementById('memoContainer');
   if (!memoContainer) return;
@@ -173,12 +161,10 @@ function renderMemos(memos) {
   });
 }
 
-// Fungsi untuk menghindari XSS
 function escapeHtml(unsafe) {
   return (unsafe || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/\n/g, "<br>");
 }
 
-// Fungsi copy ke clipboard
 function copyToClipboard(text) {
   const decodedText = (text || '').replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>').replace(/"/g, '"').replace(/'/g, "'").replace(/<br>/g, '\n');
   navigator.clipboard.writeText(decodedText).then(() => {
@@ -189,7 +175,6 @@ function copyToClipboard(text) {
   });
 }
 
-// Tampilkan notifikasi
 function showNotification(message, type = 'success') {
   const notification = document.getElementById('notification');
   const notificationMsg = document.getElementById('notificationMessage');
@@ -201,23 +186,18 @@ function showNotification(message, type = 'success') {
   }
 }
 
-// Fungsi pencarian memo (hanya pada judul asli, mengabaikan perbedaan font)
 function searchMemos() {
   const query = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
   if (!query) {
     renderMemos(allMemos);
     return;
   }
-
-  // Filter memo berdasarkan kesamaan pada originalTitle (teks asli)
   const filteredMemos = allMemos.filter(memo => 
     memo.originalTitle.toLowerCase().includes(query)
   );
-
   renderMemos(filteredMemos);
 }
 
-// Fungsi modal
 function showModal(id) {
   const modal = document.getElementById(id);
   if (modal) modal.classList.add('active');
@@ -238,7 +218,6 @@ function hideProfileModal() {
   if (modal) modal.classList.remove('active');
 }
 
-// Fungsi update profile picture
 function showUpdateProfilePictureModal() {
   hideProfileModal();
   const fileInput = document.getElementById('profilePictureInput');
@@ -283,7 +262,6 @@ function saveProfilePicture() {
   if (fileInput) reader.readAsDataURL(fileInput.files[0]);
 }
 
-// Fungsi update username
 function showUpdateUsernameModal() {
   hideProfileModal();
   const usernameInput = document.getElementById('newUsername');
@@ -318,7 +296,6 @@ function saveUsername() {
   }
 }
 
-// Tambah menu baru
 function showAddMenuModal() {
   const menuInput = document.getElementById('newMenuName');
   if (menuInput) {
@@ -345,7 +322,6 @@ function addNewMenu() {
   showNotification('Menu berhasil ditambahkan!');
 }
 
-// Hapus menu
 function deleteMenu(menuName) {
   if (confirm(`Apakah Anda yakin ingin menghapus menu "${menuName}"?`)) {
     const menus = JSON.parse(localStorage.getItem(`menuItems_${currentUser.email}`) || '[]');
@@ -356,7 +332,6 @@ function deleteMenu(menuName) {
   }
 }
 
-// Tambah/edit memo
 function showAddMemoModal() {
   currentMemoId = null;
   const titleInput = document.getElementById('memoModalTitle');
@@ -429,7 +404,57 @@ function deleteMemo(id) {
   }
 }
 
-// Fungsi logout
+function exportData() {
+  try {
+    const data = {
+      users: localStorage.getItem('users'),
+      currentUser: localStorage.getItem('currentUser'),
+      menus: localStorage.getItem(`menuItems_${currentUser.email}`),
+      memos: localStorage.getItem(`memos_${currentUser.email}`)
+    };
+    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'backup.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    showNotification('Data berhasil diekspor!');
+  } catch (e) {
+    console.error('Error exporting data:', e);
+    showNotification('Terjadi kesalahan saat mengekspor data!', 'error');
+  }
+}
+
+function importData(event) {
+  try {
+    const file = event.target.files[0];
+    if (!file) {
+      showNotification('Silakan pilih file JSON!', 'error');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (data.users) localStorage.setItem('users', data.users);
+        if (data.currentUser) localStorage.setItem('currentUser', data.currentUser);
+        if (data.menus) localStorage.setItem(`menuItems_${currentUser.email}`, data.menus);
+        if (data.memos) localStorage.setItem(`memos_${currentUser.email}`, data.memos);
+        showNotification('Data berhasil diimpor! Halaman akan dimuat ulang.');
+        setTimeout(() => location.reload(), 2000);
+      } catch (err) {
+        console.error('Error parsing imported data:', err);
+        showNotification('File JSON tidak valid!', 'error');
+      }
+    };
+    reader.readAsText(file);
+  } catch (e) {
+    console.error('Error importing data:', e);
+    showNotification('Terjadi kesalahan saat mengimpor data!', 'error');
+  }
+}
+
 function logout() {
   if (confirm('Apakah Anda yakin ingin logout?')) {
     localStorage.removeItem('currentUser');
