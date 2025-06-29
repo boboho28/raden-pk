@@ -4,10 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TOGELUP CRYPTO</title>
-  <!-- Tambahkan favicon baru -->
-    <link rel="icon" type="image/jpg" href="https://res.cloudinary.com/dvamzdxnj/image/upload/v1751207843/_316c351c-9818-4e10-b3e3-dfe66c9a25e0_sswcdi.jpg">
   <link rel="stylesheet" href="styles.css">
-  <script src="app.js" defer></script>
 </head>
 <body>
   <div class="sidebar">
@@ -16,18 +13,15 @@
         <span id="currentUserEmail">Username</span>
       </div>
     </div>
-
     <div class="menu-list" id="menuList"></div>
-
     <div class="add-menu-container">
       <button class="add-menu-btn" onclick="showAddMenuModal()">
-        <span>+</span> Tambah Menu
+        <i class="fas fa-plus"></i> Tambah Menu
       </button>
     </div>
-
     <div class="logout-container">
       <button class="logout-btn" onclick="logout()">
-        <i>↪</i> Logout
+        <i class="fas fa-sign-out-alt"></i> Logout
       </button>
     </div>
   </div>
@@ -36,31 +30,29 @@
     <div class="content-header">
       <div class="page-title" id="currentCategory">Memo</div>
       <div class="header-actions">
-        <button id="themeToggle" class="theme-toggle">🌙</button>
-        <img id="profilePicture" class="profile-picture" src="https://via.placeholder.com/40" alt="Profile Picture" onclick="toggleProfileModal()">
+        <button class="theme-toggle" id="themeToggle">🌙</button>
+        <img src="https://via.placeholder.com/40" alt="Profile" class="profile-picture" id="profilePicture" onclick="toggleProfileModal()">
         <button class="add-memo-btn" onclick="showAddMemoModal()">
-          <span>+</span> Tambah Memo
+          <i class="fas fa-plus"></i> Tambah Memo
         </button>
       </div>
     </div>
-
     <div class="search-container">
-      <input type="text" id="searchInput" class="search-box" placeholder="Cari memo...">
+      <input type="text" class="search-box" id="searchInput" placeholder="Cari memo...">
     </div>
-
     <div class="memo-container" id="memoContainer"></div>
   </div>
 
   <div class="modal-overlay" id="addMenuModal">
     <div class="modal-content">
       <div class="modal-header">
-        <div class="modal-title">Tambah Menu Baru</div>
+        <span class="modal-title">Tambah Menu Baru</span>
         <button class="close-btn" onclick="hideModal('addMenuModal')">×</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
           <label class="form-label" for="newMenuName">Nama Menu</label>
-          <input type="text" id="newMenuName" class="form-input" placeholder="Masukkan nama menu">
+          <input type="text" class="form-input" id="newMenuName">
         </div>
       </div>
       <div class="modal-footer">
@@ -73,17 +65,17 @@
   <div class="modal-overlay" id="memoModal">
     <div class="modal-content">
       <div class="modal-header">
-        <div class="modal-title" id="memoModalTitle">Tambah Memo Baru</div>
+        <span class="modal-title" id="memoModalTitle">Tambah Memo Baru</span>
         <button class="close-btn" onclick="hideModal('memoModal')">×</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
           <label class="form-label" for="memoTitle">Judul</label>
-          <input type="text" id="memoTitle" class="form-input" placeholder="Masukkan judul memo">
+          <input type="text" class="form-input" id="memoTitle">
         </div>
         <div class="form-group">
           <label class="form-label" for="memoDescription">Deskripsi</label>
-          <textarea id="memoDescription" class="form-input form-textarea" placeholder="Masukkan deskripsi memo"></textarea>
+          <textarea class="form-input form-textarea" id="memoDescription"></textarea>
         </div>
       </div>
       <div class="modal-footer">
@@ -102,6 +94,11 @@
       <div class="profile-modal-body">
         <button class="profile-option-btn" onclick="showUpdateProfilePictureModal()">Update Profile Picture</button>
         <button class="profile-option-btn" onclick="showUpdateUsernameModal()">Update Username</button>
+        <button class="profile-option-btn" onclick="exportData()">Ekspor Data</button>
+        <label class="profile-option-btn" style="cursor: pointer;">
+          Impor Data
+          <input type="file" accept=".json" onchange="importData(event)" style="display: none;">
+        </label>
       </div>
     </div>
   </div>
@@ -109,17 +106,15 @@
   <div class="modal-overlay" id="updateProfilePictureModal">
     <div class="modal-content">
       <div class="modal-header">
-        <div class="modal-title">Update Profile Picture</div>
+        <span class="modal-title">Update Profile Picture</span>
         <button class="close-btn" onclick="hideModal('updateProfilePictureModal')">×</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
           <label class="form-label" for="profilePictureInput">Upload Picture</label>
-          <input type="file" id="profilePictureInput" class="form-input" accept="image/*">
+          <input type="file" class="form-input" id="profilePictureInput" accept="image/*">
         </div>
-        <div class="form-group">
-          <img id="profilePicturePreview" style="max-width: 100%; display: none;">
-        </div>
+        <img id="profilePicturePreview" style="display: none; max-width: 100%; margin-top: 10px;">
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="hideModal('updateProfilePictureModal')">Batal</button>
@@ -131,13 +126,13 @@
   <div class="modal-overlay" id="updateUsernameModal">
     <div class="modal-content">
       <div class="modal-header">
-        <div class="modal-title">Update Username</div>
+        <span class="modal-title">Update Username</span>
         <button class="close-btn" onclick="hideModal('updateUsernameModal')">×</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
           <label class="form-label" for="newUsername">New Username</label>
-          <input type="text" id="newUsername" class="form-input" placeholder="Masukkan username baru">
+          <input type="text" class="form-input" id="newUsername">
         </div>
       </div>
       <div class="modal-footer">
@@ -151,5 +146,7 @@
     <span class="notification-icon">✓</span>
     <span id="notificationMessage">Berhasil disimpan!</span>
   </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
