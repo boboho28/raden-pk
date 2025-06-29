@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TOGELUP CRYPTO - Login</title>
+  <link rel="stylesheet" href="login.css">
+</head>
+<body>
+  <div class="login-container">
+    <div class="logo">
+      <h1>TOGELUP CRYPTO</h1>
+    </div>
+    
+    <div class="input-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="contoh@email.com">
+    </div>
+    
+    <div class="input-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Masukkan password">
+    </div>
+    
+    <button class="btn-login" id="loginBtn" onclick="doLogin()">MASUK</button>
+    
+    <div class="register-link">
+      Belum punya akun? <a href="register.html">Daftar disini</a>
+    </div>
+    
+    <div id="errorMessage" class="error-message"></div>
+  </div>
+
+  <script>
+    // Redirect ke index.html jika sudah login
+    if (localStorage.getItem('currentUser')) {
+      window.location.href = 'index.html';
+    }
+
+    function doLogin() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const btn = document.getElementById('loginBtn');
+      
+      if (!email || !password) {
+        showError('Harap isi email dan password');
+        return;
+      }
+      
+      // Tampilkan loading
+      btn.disabled = true;
+      btn.textContent = 'Memeriksa...';
+      document.getElementById('errorMessage').textContent = '';
+      
+      // Check user credentials
+      const users = JSON.parse(localStorage.getItem('users')) || [];
+      const user = users.find(u => u.email === email && u.password === password);
+      
+      if (user) {
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        window.location.href = 'index.html';
+      } else {
+        showError('Email/Password salah!');
+        btn.disabled = false;
+        btn.textContent = 'MASUK';
+      }
+    }
+    
+    function showError(message) {
+      document.getElementById('errorMessage').textContent = message;
+    }
+    
+    // Enter key support
+    document.getElementById('password').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') doLogin();
+    });
+  </script>
+</body>
+</html>
