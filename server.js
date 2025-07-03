@@ -8,7 +8,7 @@ const app = express();
 app.use(express.json());
 app.use(cors({ origin: '*' })); // Ganti '*' dengan domain frontend saat deploy
 
-const uri = 'mongodb://localhost:27017'; // Ganti dengan MongoDB Atlas URI jika digunakan
+const uri = 'mongodb://localhost:27017'; // Ganti dengan URI MongoDB Atlas jika digunakan
 const client = new MongoClient(uri);
 const dbName = 'memoApp';
 const SECRET_KEY = 'your-secret-key'; // Ganti dengan kunci rahasia yang kuat
@@ -18,7 +18,6 @@ async function connectDB() {
   return client.db(dbName);
 }
 
-// Middleware untuk memverifikasi token
 function authenticateToken(req, res, next) {
   const token = req.headers['authorization']?.split(' ')[1];
   if (!token) return res.status(401).json({ message: 'Token diperlukan!' });
@@ -29,21 +28,16 @@ function authenticateToken(req, res, next) {
   });
 }
 
-// Register
 app.post('/api/register', async (req, res) => {
   const { email, password, username } = req.body;
   const db = await connectDB();
   const existingUser = await db.collection('users').findOne({ email });
-  if (existingUser) {
-    return res.status(400).json({ message: 'Email sudah terdaftar!' });
-  }
+  if (existingUser) return res.status(400).json({ message: 'Email sudah terdaftar!' });
   const hashedPassword = await bcrypt.hash(password, 10);
-  const user = { email, password: hashedPassword, username: username || email.split('@')[0], profilePicture: '' };
-  await db.collection('users').insertOne(user);
+  await db.collection('users').insertOne({ email, password: hashedPassword, username: username || email.split('@')[0], profilePicture: '' });
   res.status(201).json({ message: 'Pendaftaran berhasil!' });
 });
 
-// Login
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
   const db = await connectDB();
@@ -55,26 +49,21 @@ app.post('/api/login', async (req, res) => {
   res.json({ token, user: { email: user.email, username: user.username, profilePicture: user.profilePicture } });
 });
 
-// Get Menus
 app.get('/api/menus', authenticateToken, async (req, res) => {
   const db = await connectDB();
   const menus = await db.collection('menus').find({ userEmail: req.user.email }).toArray();
   res.json(menus.map(m => m.name));
 });
 
-// Add Menu
 app.post('/api/menus', authenticateToken, async (req, res) => {
   const { name } = req.body;
   const db = await connectDB();
   const existingMenu = await db.collection('menus').findOne({ userEmail: req.user.email, name });
-  if (existingMenu) {
-    return res.status(400).json({ message: 'Menu sudah ada!' });
-  }
+  if (existingMenu) return res.status(400).json({ message: 'Menu sudah ada!' });
   await db.collection('menus').insertOne({ userEmail: req.user.email, name });
   res.json({ message: 'Menu berhasil ditambahkan!' });
 });
 
-// Delete Menu
 app.delete('/api/menus/:name', authenticateToken, async (req, res) => {
   const { name } = req.params;
   const db = await connectDB();
@@ -83,7 +72,6 @@ app.delete('/api/menus/:name', authenticateToken, async (req, res) => {
   res.json({ message: 'Menu berhasil dihapus!' });
 });
 
-// Get Memos
 app.get('/api/memos/:category', authenticateToken, async (req, res) => {
   const { category } = req.params;
   const db = await connectDB();
@@ -91,7 +79,6 @@ app.get('/api/memos/:category', authenticateToken, async (req, res) => {
   res.json(memos);
 });
 
-// Add/Edit Memo
 app.post('/api/memos', authenticateToken, async (req, res) => {
   const { id, title, originalTitle, description, category } = req.body;
   const db = await connectDB();
@@ -107,7 +94,6 @@ app.post('/api/memos', authenticateToken, async (req, res) => {
   res.json({ message: 'Memo berhasil disimpan!' });
 });
 
-// Delete Memo
 app.delete('/api/memos/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
   const db = await connectDB();
@@ -115,7 +101,6 @@ app.delete('/api/memos/:id', authenticateToken, async (req, res) => {
   res.json({ message: 'Memo berhasil dihapus!' });
 });
 
-// Update Profile Picture
 app.post('/api/profile/picture', authenticateToken, async (req, res) => {
   const { profilePicture } = req.body;
   const db = await connectDB();
@@ -123,19 +108,15 @@ app.post('/api/profile/picture', authenticateToken, async (req, res) => {
   res.json({ message: 'Foto profil berhasil diperbarui!' });
 });
 
-// Update Username
 app.post('/api/profile/username', authenticateToken, async (req, res) => {
   const { username } = req.body;
   const db = await connectDB();
   const existingUser = await db.collection('users').findOne({ username, email: { $ne: req.user.email } });
-  if (existingUser) {
-    return res.status(400).json({ message: 'Username sudah digunakan!' });
-  }
+  if (existingUser) return res.status(400).json({ message: 'Username sudah digunakan!' });
   await db.collection('users').updateOne({ email: req.user.email }, { $set: { username } });
   res.json({ message: 'Username berhasil diperbarui!' });
 });
 
-// Export Data
 app.get('/api/export', authenticateToken, async (req, res) => {
   const db = await connectDB();
   const user = await db.collection('users').findOne({ email: req.user.email });
@@ -144,19 +125,14 @@ app.get('/api/export', authenticateToken, async (req, res) => {
   res.json({ user, menus: menus.map(m => m.name), memos });
 });
 
-// Import Data
 app.post('/api/import', authenticateToken, async (req, res) => {
   const { user, menus, memos } = req.body;
   const db = await connectDB();
   await db.collection('users').updateOne({ email: req.user.email }, { $set: { username: user.username, profilePicture: user.profilePicture } });
   await db.collection('menus').deleteMany({ userEmail: req.user.email });
   await db.collection('memos').deleteMany({ userEmail: req.user.email });
-  if (menus.length) {
-    await db.collection('menus').insertMany(menus.map(name => ({ userEmail: req.user.email, name })));
-  }
-  if (memos.length) {
-    await db.collection('memos').insertMany(memos.map(memo => ({ ...memo, userEmail: req.user.email })));
-  }
+  if (menus.length) await db.collection('menus').insertMany(menus.map(name => ({ userEmail: req.user.email, name })));
+  if (memos.length) await db.collection('memos').insertMany(memos.map(memo => ({ ...memo, userEmail: req.user.email })));
   res.json({ message: 'Data berhasil diimpor!' });
 });
 
