@@ -4,8 +4,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TOGELUP CRYPTO - Login</title>
   <!-- Tambahkan favicon baru -->
-    <link rel="icon" type="image/jpg" href="https://res.cloudinary.com/dvamzdxnj/image/upload/v1751207843/_316c351c-9818-4e10-b3e3-dfe66c9a25e0_sswcdi.jpg">
-    <link rel="stylesheet" href="login.css">
+  <link rel="icon" type="image/jpg" href="https://res.cloudinary.com/dvamzdxnj/image/upload/v1751207843/_316c351c-9818-4e10-b3e3-dfe66c9a25e0_sswcdi.jpg">
   <link rel="stylesheet" href="login.css">
 </head>
 <body>
@@ -24,7 +23,7 @@
       <input type="password" id="password" placeholder="Masukkan password">
     </div>
     
-    <button class="btn-login" id="loginBtn" onclick="doLogin()">MASUK</button>
+    <button class="btn-login" id="loginBtn">MASUK</button>
     
     <div class="register-link">
       Belum punya akun? <a href="register.html">Daftar disini</a>
@@ -33,48 +32,106 @@
     <div id="errorMessage" class="error-message"></div>
   </div>
 
-  <script>
-    // Redirect ke index.html jika sudah login
-    if (localStorage.getItem('currentUser')) {
-      window.location.href = 'index.html';
-    }
+  <!-- 1. Import Firebase SDK (Gaya Modul/Modern) -->
+  <!-- Gunakan `type="module"` agar bisa menggunakan syntax `import` -->
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    // Jika Anda butuh analytics, uncomment baris di bawah
+    // import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
 
-    function doLogin() {
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const btn = document.getElementById('loginBtn');
+    // 2. Konfigurasi Firebase Anda
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyC5leEQNIv-wSCMJaeWQQab1QCVejydIBU",
+      authDomain: "togelup-crypto.firebaseapp.com",
+      projectId: "togelup-crypto",
+      storageBucket: "togelup-crypto.firebasestorage.app",
+      messagingSenderId: "252463725245",
+      appId: "1:252463725245:web:746df21deced249daa55d4",
+      measurementId: "G-0V5WVYQKQN"
+    };
+
+    // 3. Inisialisasi Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app); // Dapatkan instance Authentication
+    // const analytics = getAnalytics(app); // Dapatkan instance Analytics
+
+    // 4. Cek status login saat halaman dimuat
+    // Ini cara Firebase yang benar untuk memeriksa apakah user sudah login atau belum
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User sudah login, arahkan ke halaman utama
+        console.log("User sudah login, mengarahkan ke index.html");
+        window.location.href = 'index.html';
+      } else {
+        // User belum login, biarkan di halaman login
+        console.log("User belum login.");
+      }
+    });
+
+    // 5. Logika untuk tombol login
+    const loginBtn = document.getElementById('loginBtn');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const errorMessageDiv = document.getElementById('errorMessage');
+
+    // Fungsi untuk menampilkan pesan error
+    function showError(message) {
+      errorMessageDiv.textContent = message;
+    }
+    
+    // Fungsi untuk melakukan login dengan Firebase
+    async function doLogin() {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
       
       if (!email || !password) {
         showError('Harap isi email dan password');
         return;
       }
       
-      // Tampilkan loading
-      btn.disabled = true;
-      btn.textContent = 'Memeriksa...';
-      document.getElementById('errorMessage').textContent = '';
+      // Tampilkan status loading di tombol
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Memeriksa...';
+      showError(''); // Kosongkan pesan error sebelumnya
       
-      // Check user credentials
-      const users = JSON.parse(localStorage.getItem('users')) || [];
-      const user = users.find(u => u.email === email && u.password === password);
-      
-      if (user) {
-        localStorage.setItem('currentUser', JSON.stringify(user));
-        window.location.href = 'index.html';
-      } else {
-        showError('Email/Password salah!');
-        btn.disabled = false;
-        btn.textContent = 'MASUK';
+      try {
+        // Gunakan fungsi Firebase untuk login
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        // Jika berhasil, onAuthStateChanged di atas akan otomatis mendeteksi dan mengarahkan halaman
+        console.log("Login berhasil:", userCredential.user);
+        // Tidak perlu redirect manual di sini karena sudah ditangani oleh onAuthStateChanged
+        
+      } catch (error) {
+        // Jika terjadi error saat login
+        const errorCode = error.code;
+        console.error("Login gagal:", errorCode, error.message);
+        
+        // Berikan pesan yang lebih ramah ke pengguna
+        if (errorCode === 'auth/invalid-credential' || errorCode === 'auth/user-not-found' || errorCode === 'auth/wrong-password') {
+          showError('Email atau Password yang Anda masukkan salah.');
+        } else if (errorCode === 'auth/invalid-email') {
+          showError('Format email tidak valid.');
+        } else {
+          showError('Terjadi kesalahan. Coba lagi nanti.');
+        }
+        
+        // Kembalikan tombol ke keadaan semula
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'MASUK';
       }
     }
+
+    // Tambahkan event listener ke tombol
+    loginBtn.addEventListener('click', doLogin);
     
-    function showError(message) {
-      document.getElementById('errorMessage').textContent = message;
-    }
-    
-    // Enter key support
-    document.getElementById('password').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') doLogin();
+    // Tambahkan event listener untuk tombol Enter di field password
+    passwordInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        doLogin();
+      }
     });
   </script>
 </body>
