@@ -1,153 +1,81 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TOGELUP CRYPTO</title>
-  <!-- Tambahkan favicon baru -->
-    <link rel="icon" type="image/jpg" href="https://res.cloudinary.com/dvamzdxnj/image/upload/v1751207843/_316c351c-9818-4e10-b3e3-dfe66c9a25e0_sswcdi.jpg">
+  <link rel="icon" type="image/jpg" href="https://res.cloudinary.com/dvamzdxnj/image/upload/v1751207843/_316c351c-9818-4e10-b3e3-dfe66c9a25e0_sswcdi.jpg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <!-- Sidebar -->
   <div class="sidebar">
-    <div class="user-info">
-      <div class="user-profile">
-        <span id="currentUserEmail">Username</span>
+    <div class="sidebar-header">
+      <div class="user-profile" onclick="toggleProfileModal()">
+        <img src="https://via.placeholder.com/40" alt="Profile" id="profilePicture">
+        <div class="user-info">
+          <span id="currentUserEmail">Username</span>
+          <small>User</small>
+        </div>
       </div>
     </div>
-    <div class="menu-list" id="menuList"></div>
-    <div class="add-menu-container">
-      <button class="add-menu-btn" onclick="showAddMenuModal()">
-        <i class="fas fa-plus"></i> Tambah Menu
-      </button>
+
+    <div class="sidebar-menu">
+      <div id="menuList"></div>
+      
+      <!-- Link Rumus Khusus sudah dihapus dari sini -->
+
+      <a href="#" class="sidebar-link add-menu-btn" onclick="showAddMenuModal()">
+        <i class="fa-solid fa-plus"></i>
+        <span>Tambah Menu</span>
+      </a>
     </div>
-    <div class="logout-container">
-      <button class="logout-btn" onclick="logout()">
-        <i class="fas fa-sign-out-alt"></i> Logout
-      </button>
+    <div class="sidebar-footer">
+       <a href="#" class="sidebar-link logout-btn" onclick="logout()">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        <span>Logout</span>
+      </a>
     </div>
   </div>
 
+  <!-- Konten Utama -->
   <div class="main-content">
-    <div class="content-header">
-      <div class="page-title" id="currentCategory">Memo</div>
+    <div class="header">
+      <div class="header-title">
+        <h2 id="currentCategory">Memo</h2>
+        <p>Kelola semua data Anda di sini</p>
+      </div>
       <div class="header-actions">
-        <button class="theme-toggle" id="themeToggle">🌙</button>
-        <img src="https://via.placeholder.com/40" alt="Profile" class="profile-picture" id="profilePicture" onclick="toggleProfileModal()">
-        <button class="add-memo-btn" onclick="showAddMemoModal()">
-          <i class="fas fa-plus"></i> Tambah Memo
+        <!-- ==== PERUBAHAN UTAMA: TOMBOL RUMUS DITAMBAHKAN DI SINI ==== -->
+        <button class="action-btn" id="themeToggle" title="Toggle Theme"><i class="fa-solid fa-sun"></i></button>
+        
+        <button class="action-btn" onclick="showRumusModal()" title="Rumus Reset Password">
+            <i class="fa-solid fa-lock"></i> <!-- Menggunakan ikon gembok -->
         </button>
-      </div>
-    </div>
-    <div class="search-container">
-      <input type="text" class="search-box" id="searchInput" placeholder="Cari memo...">
-    </div>
-    <div class="memo-container" id="memoContainer"></div>
-  </div>
+        <!-- ======================================================= -->
 
-  <div class="modal-overlay" id="addMenuModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <span class="modal-title">Tambah Menu Baru</span>
-        <button class="close-btn" onclick="hideModal('addMenuModal')">×</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label class="form-label" for="newMenuName">Nama Menu</label>
-          <input type="text" class="form-input" id="newMenuName">
+        <div class="search-container">
+           <i class="fa-solid fa-magnifying-glass"></i>
+           <input type="text" class="search-box" id="searchInput" placeholder="Cari memo...">
         </div>
+        <button class="action-btn add-memo-btn-main" onclick="showAddMemoModal()" title="Tambah Memo"><i class="fa-solid fa-plus"></i></button>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="hideModal('addMenuModal')">Batal</button>
-        <button class="btn btn-primary" onclick="addNewMenu()">Simpan</button>
-      </div>
+    </div>
+    <div class="content-body">
+        <div id="memoContainer"></div>
     </div>
   </div>
 
-  <div class="modal-overlay" id="memoModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <span class="modal-title" id="memoModalTitle">Tambah Memo Baru</span>
-        <button class="close-btn" onclick="hideModal('memoModal')">×</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label class="form-label" for="memoTitle">Judul</label>
-          <input type="text" class="form-input" id="memoTitle">
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="memoDescription">Deskripsi</label>
-          <textarea class="form-input form-textarea" id="memoDescription"></textarea>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="hideModal('memoModal')">Batal</button>
-        <button class="btn btn-primary" onclick="saveMemo()">Simpan</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="profile-modal" id="profileModal">
-    <div class="profile-modal-content">
-      <div class="profile-modal-header">
-        <span id="profileModalUsername">Username</span>
-        <button class="close-btn" onclick="hideProfileModal()">×</button>
-      </div>
-      <div class="profile-modal-body">
-        <button class="profile-option-btn" onclick="showUpdateProfilePictureModal()">Update Profile Picture</button>
-        <button class="profile-option-btn" onclick="showUpdateUsernameModal()">Update Username</button>
-        <button class="profile-option-btn" onclick="exportData()">Ekspor Data</button>
-        <label class="profile-option-btn" style="cursor: pointer;">
-          Impor Data
-          <input type="file" accept=".json" onchange="importData(event)" style="display: none;">
-        </label>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="updateProfilePictureModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <span class="modal-title">Update Profile Picture</span>
-        <button class="close-btn" onclick="hideModal('updateProfilePictureModal')">×</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label class="form-label" for="profilePictureInput">Upload Picture</label>
-          <input type="file" class="form-input" id="profilePictureInput" accept="image/*">
-        </div>
-        <img id="profilePicturePreview" style="display: none; max-width: 100%; margin-top: 10px;">
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="hideModal('updateProfilePictureModal')">Batal</button>
-        <button class="btn btn-primary" onclick="saveProfilePicture()">Simpan</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="updateUsernameModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <span class="modal-title">Update Username</span>
-        <button class="close-btn" onclick="hideModal('updateUsernameModal')">×</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label class="form-label" for="newUsername">New Username</label>
-          <input type="text" class="form-input" id="newUsername">
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="hideModal('updateUsernameModal')">Batal</button>
-        <button class="btn btn-primary" onclick="saveUsername()">Simpan</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="notification" id="notification">
-    <span class="notification-icon">✓</span>
-    <span id="notificationMessage">Berhasil disimpan!</span>
-  </div>
+  <!-- Sisa Modal tidak berubah -->
+  <div class="modal-overlay" id="addMenuModal"><div class="modal-content"><div class="modal-header"><span class="modal-title">Tambah Menu Baru</span><button class="close-btn" onclick="hideModal('addMenuModal')">×</button></div><div class="modal-body"><div class="form-group"><label class="form-label" for="newMenuName">Nama Menu</label><input type="text" class="form-input" id="newMenuName"></div></div><div class="modal-footer"><button class="btn btn-secondary" onclick="hideModal('addMenuModal')">Batal</button><button class="btn btn-primary" onclick="addNewMenu()">Simpan</button></div></div></div>
+  <div class="modal-overlay" id="editMenuModal"><div class="modal-content"><div class="modal-header"><span class="modal-title">Edit Nama Menu</span><button class="close-btn" onclick="hideModal('editMenuModal')">×</button></div><div class="modal-body"><div class="form-group"><label class="form-label" for="editMenuName">Nama Menu Baru</label><input type="text" class="form-input" id="editMenuName"><input type="hidden" id="oldMenuName"></div></div><div class="modal-footer"><button class="btn btn-secondary" onclick="hideModal('editMenuModal')">Batal</button><button class="btn btn-primary" onclick="updateMenuName()">Simpan Perubahan</button></div></div></div>
+  <div class="modal-overlay" id="rumusModal"><div class="modal-content"><div class="modal-header"><span class="modal-title">Rumus Reset Password</span><button class="close-btn" onclick="hideModal('rumusModal')">×</button></div><div class="modal-body"><div class="form-group"><label class="form-label" for="rumusUserIdInput">Masukkan User ID</label><input type="text" class="form-input" id="rumusUserIdInput" placeholder="contoh: susilo0"></div><div class="form-group"><label class="form-label">Hasil Rumus</label><textarea class="form-input form-textarea" id="rumusResult" readonly rows="7"></textarea></div></div><div class="modal-footer"><button class="btn btn-secondary" onclick="hideModal('rumusModal')">Tutup</button><button class="btn btn-primary" onclick="generateAndCopyRumus()">Generate & Copy</button></div></div></div>
+  <div class="modal-overlay" id="memoModal"><div class="modal-content"><div class="modal-header"><span class="modal-title" id="memoModalTitle">Tambah Memo Baru</span><button class="close-btn" onclick="hideModal('memoModal')">×</button></div><div class="modal-body"><div class="form-group"><label class="form-label" for="memoTitle">Judul</label><input type="text" class="form-input" id="memoTitle"></div><div class="form-group"><label class="form-label" for="memoDescription">Deskripsi</label><textarea class="form-input form-textarea" id="memoDescription"></textarea></div></div><div class="modal-footer"><button class="btn btn-secondary" onclick="hideModal('memoModal')">Batal</button><button class="btn btn-primary" onclick="saveMemo()">Simpan</button></div></div></div>
+  <div class="profile-modal" id="profileModal"><div class="profile-modal-content"><div class="profile-modal-header"><span id="profileModalUsername">Username</span><button class="close-btn" onclick="hideProfileModal()">×</button></div><div class="profile-modal-body"><button class="profile-option-btn" onclick="showUpdateProfilePictureModal()">Update Profile Picture</button><button class="profile-option-btn" onclick="showUpdateUsernameModal()">Update Username</button><button class="profile-option-btn" onclick="exportData()">Ekspor Data</button><label class="profile-option-btn" style="cursor: pointer;">Impor Data<input type="file" accept=".json" onchange="importData(event)" style="display: none;"></label></div></div></div>
+  <div class="modal-overlay" id="updateProfilePictureModal"><div class="modal-content"><div class="modal-header"><span class="modal-title">Update Profile Picture</span><button class="close-btn" onclick="hideModal('updateProfilePictureModal')">×</button></div><div class="modal-body"><div class="form-group"><label class="form-label" for="profilePictureInput">Upload Picture</label><input type="file" class="form-input" id="profilePictureInput" accept="image/*"></div><img id="profilePicturePreview" style="display: none; max-width: 100%; margin-top: 10px;"></div><div class="modal-footer"><button class="btn btn-secondary" onclick="hideModal('updateProfilePictureModal')">Batal</button><button class="btn btn-primary" onclick="saveProfilePicture()">Simpan</button></div></div></div>
+  <div class="modal-overlay" id="updateUsernameModal"><div class="modal-content"><div class="modal-header"><span class="modal-title">Update Username</span><button class="close-btn" onclick="hideModal('updateUsernameModal')">×</button></div><div class="modal-body"><div class="form-group"><label class="form-label" for="newUsername">New Username</label><input type="text" class="form-input" id="newUsername"></div></div><div class="modal-footer"><button class="btn btn-secondary" onclick="hideModal('updateUsernameModal')">Batal</button><button class="btn btn-primary" onclick="saveUsername()">Simpan</button></div></div></div>
+  <div class="notification" id="notification"><span class="notification-icon">✓</span><span id="notificationMessage">Berhasil disimpan!</span></div>
 
   <script src="app.js"></script>
 </body>
