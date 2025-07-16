@@ -188,7 +188,7 @@ function renderMemos(memos) {
 
 // --- FUNGSI RUMUS (UPDATED) ---
 
-// Fungsi ini memastikan modal selalu terbuka dalam keadaan terkunci.
+// Fungsi ini memastikan modal SELALU terbuka dalam keadaan terkunci.
 function showRumusModal() {
   document.getElementById('rumusUserIdInput').value = '';
   const passwordInput = document.getElementById('rumusPasswordInput');
@@ -198,7 +198,7 @@ function showRumusModal() {
   const savedPassword = localStorage.getItem(`rumusPassword_${currentUser.email}`) || '';
   passwordInput.value = savedPassword;
 
-  // SELALU atur ke keadaan terkunci saat modal dibuka
+  // Atur ke keadaan terkunci secara default SETIAP KALI modal dibuka
   passwordInput.disabled = true;
   lockIcon.classList.remove('fa-lock-open');
   lockIcon.classList.add('fa-lock');
@@ -242,7 +242,7 @@ function generateRumusTemplate() {
     return template;
 }
 
-// Fungsi ini menyimpan password HANYA jika gemboknya terbuka.
+// Fungsi ini menyimpan password HANYA jika gemboknya terbuka (input tidak disabled).
 function generateAndCopyRumus() {
   const userId = (document.getElementById('rumusUserIdInput').value || '').trim();
   const newPassword = (document.getElementById('rumusPasswordInput').value || '').trim();
@@ -260,7 +260,7 @@ function generateAndCopyRumus() {
   // Cek apakah input sedang aktif (tidak di-disable)
   const wasPasswordChanged = !passwordInput.disabled;
 
-  // Jika password diubah, simpan yang baru
+  // Jika password diubah (karena gembok terbuka), simpan yang baru
   if (wasPasswordChanged) {
     localStorage.setItem(`rumusPassword_${currentUser.email}`, newPassword);
   }
