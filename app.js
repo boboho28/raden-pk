@@ -288,7 +288,7 @@ function generateAndCopyRumus() {
 
 // Fungsi escapeHtml yang benar
 function escapeHtml(unsafe) {
-  return (unsafe || '').replace(/&/g, "&amp;").replace(/</g, ";").replace(/>/g, ";").replace(/"/g, ";").replace(/'/g, ";").replace(/\n/g, "");
+  return (unsafe || '').replace(/&/g, "&amp;").replace(/</g, ";").replace(/>/g, ";").replace(/"/g, ";").replace(/'/g, ";").replace(/\n/g, "<br>");
 }
 function copyMemoDescription(memoId) { const memo = allMemos.find(m => m.id === memoId); if (memo) { navigator.clipboard.writeText(memo.description).then(() => { showNotification('Deskripsi berhasil disalin!'); }).catch(err => { console.error('Gagal menyalin:', err); showNotification('Gagal menyalin deskripsi', 'error'); }); } }
 function showNotification(message, type = 'success') { const notification = document.getElementById('notification'); const notificationMsg = document.getElementById('notificationMessage'); if (notification && notificationMsg) { notificationMsg.textContent = message; notification.className = `notification ${type === 'error' ? 'error' : ''}`; notification.classList.add('show'); setTimeout(() => notification.classList.remove('show'), 3000); } }
