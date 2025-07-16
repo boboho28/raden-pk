@@ -186,18 +186,18 @@ function renderMemos(memos) {
   });
 }
 
-// --- FUNGSI RUMUS (UPDATED) ---
+// --- FUNGSI RUMUS (FINAL & CORRECTED) ---
 
 // Fungsi ini memastikan modal SELALU terbuka dalam keadaan terkunci.
 function showRumusModal() {
   const passwordInput = document.getElementById('rumusPasswordInput');
   const lockIcon = document.querySelector('#togglePasswordLockBtn i');
   
-  // Ambil password yang tersimpan
+  // Ambil password yang tersimpan dari localStorage
   const savedPassword = localStorage.getItem(`rumusPassword_${currentUser.email}`) || '';
   passwordInput.value = savedPassword;
 
-  // Hapus value user ID dan Hasil Rumus
+  // Hapus value user ID dan Hasil Rumus dari sesi sebelumnya
   document.getElementById('rumusUserIdInput').value = '';
   document.getElementById('rumusResult').value = '';
 
@@ -286,9 +286,11 @@ function generateAndCopyRumus() {
   }
 }
 
+// Fungsi escapeHtml yang benar
 function escapeHtml(unsafe) {
-  return (unsafe || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/\n/g, "<br>");
+  return (unsafe || '').replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">").replace(/"/g, """).replace(/'/g, "'").replace(/\n/g, "<br>");
 }
+
 function copyMemoDescription(memoId) { const memo = allMemos.find(m => m.id === memoId); if (memo) { navigator.clipboard.writeText(memo.description).then(() => { showNotification('Deskripsi berhasil disalin!'); }).catch(err => { console.error('Gagal menyalin:', err); showNotification('Gagal menyalin deskripsi', 'error'); }); } }
 function showNotification(message, type = 'success') { const notification = document.getElementById('notification'); const notificationMsg = document.getElementById('notificationMessage'); if (notification && notificationMsg) { notificationMsg.textContent = message; notification.className = `notification ${type === 'error' ? 'error' : ''}`; notification.classList.add('show'); setTimeout(() => notification.classList.remove('show'), 3000); } }
 function searchMemos() { const query = (document.getElementById('searchInput')?.value || '').toLowerCase().trim(); const filteredMemos = allMemos.filter(memo => (memo.originalTitle || '').toLowerCase().includes(query) || (memo.description || '').toLowerCase().includes(query)); renderMemos(filteredMemos); }
