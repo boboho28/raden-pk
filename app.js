@@ -190,7 +190,6 @@ function renderMemos(memos) {
 
 // Fungsi ini memastikan modal SELALU terbuka dalam keadaan terkunci.
 function showRumusModal() {
-  document.getElementById('rumusUserIdInput').value = '';
   const passwordInput = document.getElementById('rumusPasswordInput');
   const lockIcon = document.querySelector('#togglePasswordLockBtn i');
   
@@ -198,13 +197,16 @@ function showRumusModal() {
   const savedPassword = localStorage.getItem(`rumusPassword_${currentUser.email}`) || '';
   passwordInput.value = savedPassword;
 
+  // Hapus value user ID dan Hasil Rumus
+  document.getElementById('rumusUserIdInput').value = '';
+  document.getElementById('rumusResult').value = '';
+
   // Atur ke keadaan terkunci secara default SETIAP KALI modal dibuka
   passwordInput.disabled = true;
   lockIcon.classList.remove('fa-lock-open');
   lockIcon.classList.add('fa-lock');
   
   showModal('rumusModal');
-  generateRumusTemplate();
 }
 
 // Fungsi ini hanya mengubah status dan UI untuk sesi modal saat ini.
@@ -285,7 +287,7 @@ function generateAndCopyRumus() {
 }
 
 function escapeHtml(unsafe) {
-  return (unsafe || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/\n/g, "<br>");
+  return (unsafe || '').replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">").replace(/"/g, """).replace(/'/g, "'").replace(/\n/g, "<br>");
 }
 function copyMemoDescription(memoId) { const memo = allMemos.find(m => m.id === memoId); if (memo) { navigator.clipboard.writeText(memo.description).then(() => { showNotification('Deskripsi berhasil disalin!'); }).catch(err => { console.error('Gagal menyalin:', err); showNotification('Gagal menyalin deskripsi', 'error'); }); } }
 function showNotification(message, type = 'success') { const notification = document.getElementById('notification'); const notificationMsg = document.getElementById('notificationMessage'); if (notification && notificationMsg) { notificationMsg.textContent = message; notification.className = `notification ${type === 'error' ? 'error' : ''}`; notification.classList.add('show'); setTimeout(() => notification.classList.remove('show'), 3000); } }
