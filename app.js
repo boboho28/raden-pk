@@ -3,6 +3,9 @@ let currentMemoId = null;
 let allMemos = [];
 let currentUser = null;
 
+// NEW: Variabel untuk menyimpan status kunci secara persisten selama sesi.
+let isPasswordLocked = true; 
+
 const unicodeMap = { 'A': '𝐀', 'B': '𝐁', 'C': '𝐂', 'D': '𝐃', 'E': '𝐄', 'F': '𝐅', 'G': '𝐆', 'H': '𝐇', 'I': '𝐈', 'J': '𝐉', 'K': '𝐊', 'L': '𝐋', 'M': '𝐌', 'N': '𝐍', 'O': '𝐎', 'P': '𝐏', 'Q': '𝐐', 'R': '𝐑', 'S': '𝐒', 'T': '𝐓', 'U': '𝐔', 'V': '𝐕', 'W': '𝐖', 'X': '𝐗', 'Y': '𝐘', 'Z': '𝐙', 'a': '𝐀', 'b': '𝐁', 'c': '𝐂', 'd': '𝐃', 'e': '𝐄', 'f': '𝐅', 'g': '𝐆', 'h': '𝐇', 'i': '𝐈', 'j': '𝐉', 'k': '𝐊', 'l': '𝐋', 'm': '𝐌', 'n': '𝐍', 'o': '𝐎', 'p': '𝐏', 'q': '𝐐', 'r': '𝐑', 's': '𝐒', 't': '𝐓', 'u': '𝐔', 'v': '𝐕', 'w': '𝐖', 'x': '𝐗', 'y': '𝐘', 'z': '𝐙', '0': '𝟎', '1': '𝟏', '2': '𝟐', '3': '𝟑', '4': '𝟒', '5': '𝟓', '6': '𝟔', '7': '𝟕', '8': '𝟖', '9': '𝟗', ' ': ' ', ':': ':', ',': ',', '.': '.', '!': '!', '?': '?', '-': '-', '_': '_', '(': '(', ')': ')', 'DECORATION_START': '✩░▒▓▆▅▃▂ ', 'DECORATION_END': ' ▂▃▅▆▓▒░✩' };
 function toFancyText(text) { if (!text || typeof text !== 'string') return text || ''; return `${unicodeMap['DECORATION_START']}${text.toUpperCase().split('').map(char => unicodeMap[char] || char).join('')}${unicodeMap['DECORATION_END']}`; }
 
@@ -186,6 +189,9 @@ function renderMemos(memos) {
   });
 }
 
+// --- FUNGSI RUMUS (UPDATED) ---
+
+// Fungsi ini sekarang menghormati variabel isPasswordLocked
 function showRumusModal() {
   document.getElementById('rumusUserIdInput').value = '';
   const passwordInput = document.getElementById('rumusPasswordInput');
@@ -194,12 +200,12 @@ function showRumusModal() {
   const savedPassword = localStorage.getItem(`rumusPassword_${currentUser.email}`) || '';
   passwordInput.value = savedPassword;
 
-  if (savedPassword) {
-    passwordInput.disabled = true;
+  // Set status input dan ikon berdasarkan variabel 'isPasswordLocked'
+  passwordInput.disabled = isPasswordLocked;
+  if (isPasswordLocked) {
     lockIcon.classList.remove('fa-lock-open');
     lockIcon.classList.add('fa-lock');
   } else {
-    passwordInput.disabled = false;
     lockIcon.classList.remove('fa-lock');
     lockIcon.classList.add('fa-lock-open');
   }
@@ -208,13 +214,16 @@ function showRumusModal() {
   generateRumusTemplate();
 }
 
+// Fungsi ini HANYA mengubah status kunci dan tampilan UI
 function togglePasswordLock() {
+  isPasswordLocked = !isPasswordLocked; // Balikkan status kunci
+
   const passwordInput = document.getElementById('rumusPasswordInput');
   const lockIcon = document.querySelector('#togglePasswordLockBtn i');
   
-  passwordInput.disabled = !passwordInput.disabled;
+  passwordInput.disabled = isPasswordLocked;
 
-  if (passwordInput.disabled) {
+  if (isPasswordLocked) {
     lockIcon.classList.remove('fa-lock-open');
     lockIcon.classList.add('fa-lock');
     showNotification('Password dikunci.', 'error');
@@ -240,11 +249,10 @@ function generateRumusTemplate() {
     return template;
 }
 
-// --- MODIFIED FUNCTION ---
+// Fungsi ini sekarang mengunci kembali password setelah menyimpan
 function generateAndCopyRumus() {
   const userId = (document.getElementById('rumusUserIdInput').value || '').trim();
   const newPassword = (document.getElementById('rumusPasswordInput').value || '').trim();
-  const passwordInput = document.getElementById('rumusPasswordInput');
 
   if (!userId) {
     showNotification('User ID tidak boleh kosong!', 'error');
@@ -254,24 +262,23 @@ function generateAndCopyRumus() {
     showNotification('Password tidak boleh kosong!', 'error');
     return;
   }
+  
+  const wasPasswordChanged = !isPasswordLocked;
 
-  const isPasswordChanged = !passwordInput.disabled;
-  // Jika password diubah, simpan yang baru
-  if (isPasswordChanged) {
+  if (wasPasswordChanged) {
     localStorage.setItem(`rumusPassword_${currentUser.email}`, newPassword);
+    isPasswordLocked = true; // Kunci kembali setelah menyimpan!
   }
 
-  const template = generateRumusTemplate();
+  const template = generateRumusTemplate(); 
 
   if (template) {
     navigator.clipboard.writeText(template).then(() => {
-      // Tampilkan notifikasi yang sesuai
-      if (isPasswordChanged) {
+      if (wasPasswordChanged) {
         showNotification('Password baru disimpan & rumus disalin!');
       } else {
         showNotification('Rumus berhasil disalin!');
       }
-      // TUTUP MODAL SECARA OTOMATIS
       hideModal('rumusModal');
     }).catch(err => {
       console.error('Gagal menyalin:', err);
@@ -279,6 +286,7 @@ function generateAndCopyRumus() {
     });
   }
 }
+
 
 function escapeHtml(unsafe) {
   return (unsafe || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/\n/g, "<br>");
