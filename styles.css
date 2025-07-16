@@ -122,6 +122,35 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-
 .btn-primary { background-color: var(--primary-color); color: #fff; }
 .btn-secondary { background-color: var(--border-color); color: var(--text-color); }
 
+/* Styles for input with icon button */
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.input-with-icon .form-input {
+  padding-right: 40px; /* Make space for the icon */
+}
+.input-icon-btn {
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  bottom: 1px;
+  width: 38px;
+  background: none;
+  border: none;
+  color: var(--text-color-muted);
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+.input-icon-btn:hover {
+  color: var(--primary-color);
+}
+
 .profile-modal { position: fixed; top: 140px; left: calc(var(--sidebar-width) + 15px); background-color: var(--sidebar-bg); border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 1001; border-radius: 8px; overflow: hidden; display: none; }
 .profile-modal.active { display: block; }
 .profile-modal-content { width: 220px; }
